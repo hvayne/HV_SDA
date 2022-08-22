@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using CommandLine;
+using System;
 using System.Diagnostics;
-using CommandLine;
+using System.Windows.Forms;
 
 namespace Steam_Desktop_Authenticator
 {

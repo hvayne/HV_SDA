@@ -1,14 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CefSharp;
-using System.Diagnostics;
-using System.IO;
-using Newtonsoft.Json;
+﻿using CefSharp;
+using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
 
 namespace Steam_Desktop_Authenticator
 {
@@ -46,14 +39,14 @@ namespace Steam_Desktop_Authenticator
         }
 
         CefReturnValue OnBeforeResourceLoad(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IRequestCallback callback)
-        {   
+        {
             // Check if the session is expired
             if (request.Url == "steammobile://lostauth")
             {
                 MessageBox.Show("Failed to load confirmations.\nTry using \"Force session refresh\" under the Selected Account menu.\nIf that doesn't work use the \"Login again\" option.", "Confirmations", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return CefReturnValue.Cancel;
             }
-            
+
             // For some reason, in order to set cookies manually using a hdeader you need to clear the real cookies every time :/
             Cef.GetGlobalCookieManager().VisitAllCookies(new DeleteAllCookiesVisitor());
 
@@ -105,7 +98,7 @@ namespace Steam_Desktop_Authenticator
 
         public void OnResourceLoadComplete(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response, UrlRequestStatus status, long receivedContentLength)
         {
-            
+
         }
 
         public IResponseFilter GetResourceResponseFilter(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response)
@@ -120,7 +113,7 @@ namespace Steam_Desktop_Authenticator
 
         public void OnResourceRedirect(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response, ref string newUrl)
         {
-            
+
         }
 
         bool IRequestHandler.OnBeforeBrowse(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool userGesture, bool isRedirect)

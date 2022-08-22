@@ -1,6 +1,6 @@
+using SteamAuth;
 using System;
 using System.Windows.Forms;
-using SteamAuth;
 
 namespace Steam_Desktop_Authenticator
 {
@@ -111,12 +111,12 @@ namespace Steam_Desktop_Authenticator
 
                     case LoginResult.TooManyFailedLogins:
                         MessageBox.Show("Error logging in: Too many failed logins, try again later.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Close();
+                        Close();
                         return;
 
                     case LoginResult.GeneralFailure:
                         MessageBox.Show("Error logging in: Steam returned \"GeneralFailure\".", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Close();
+                        Close();
                         return;
                 }
             }
@@ -239,13 +239,13 @@ namespace Steam_Desktop_Authenticator
                     case AuthenticatorLinker.FinalizeResult.UnableToGenerateCorrectCodes:
                         MessageBox.Show("Unable to generate the proper codes to finalize this authenticator. The authenticator should not have been linked. In the off-chance it was, please write down your revocation code, as this is the last chance to see it: " + linker.LinkedAccount.RevocationCode);
                         manifest.RemoveAccount(linker.LinkedAccount);
-                        this.Close();
+                        Close();
                         return;
 
                     case AuthenticatorLinker.FinalizeResult.GeneralFailure:
                         MessageBox.Show("Unable to finalize this authenticator. The authenticator should not have been linked. In the off-chance it was, please write down your revocation code, as this is the last chance to see it: " + linker.LinkedAccount.RevocationCode);
                         manifest.RemoveAccount(linker.LinkedAccount);
-                        this.Close();
+                        Close();
                         return;
                 }
             }
@@ -253,7 +253,7 @@ namespace Steam_Desktop_Authenticator
             //Linked, finally. Re-save with FullyEnrolled property.
             manifest.SaveAccount(linker.LinkedAccount, passKey != null, passKey);
             MessageBox.Show("Mobile authenticator successfully linked. Please write down your revocation code: " + linker.LinkedAccount.RevocationCode);
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -268,7 +268,7 @@ namespace Steam_Desktop_Authenticator
 
             account.FullyEnrolled = true;
 
-            UserLogin mUserLogin = new UserLogin(username, password);
+            UserLogin mUserLogin = new(username, password);
             LoginResult response = LoginResult.BadCredentials;
 
             while ((response = mUserLogin.DoLogin()) != LoginResult.LoginOkay)
@@ -276,11 +276,11 @@ namespace Steam_Desktop_Authenticator
                 switch (response)
                 {
                     case LoginResult.NeedCaptcha:
-                        CaptchaForm captchaForm = new CaptchaForm(mUserLogin.CaptchaGID);
+                        CaptchaForm captchaForm = new(mUserLogin.CaptchaGID);
                         captchaForm.ShowDialog();
                         if (captchaForm.Canceled)
                         {
-                            this.Close();
+                            Close();
                             return;
                         }
 
@@ -293,22 +293,22 @@ namespace Steam_Desktop_Authenticator
 
                     case LoginResult.BadRSA:
                         MessageBox.Show("Error logging in: Steam returned \"BadRSA\".", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Close();
+                        Close();
                         return;
 
                     case LoginResult.BadCredentials:
                         MessageBox.Show("Error logging in: Username or password was incorrect.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Close();
+                        Close();
                         return;
 
                     case LoginResult.TooManyFailedLogins:
                         MessageBox.Show("Error logging in: Too many failed logins, try again later.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Close();
+                        Close();
                         return;
 
                     case LoginResult.GeneralFailure:
                         MessageBox.Show("Error logging in: Steam returned \"GeneralFailure\".", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Close();
+                        Close();
                         return;
                 }
             }
@@ -343,7 +343,7 @@ namespace Steam_Desktop_Authenticator
                     }
                     else
                     {
-                        this.Close();
+                        Close();
                         return;
                     }
                 }
@@ -358,7 +358,7 @@ namespace Steam_Desktop_Authenticator
             {
                 MessageBox.Show("Mobile authenticator successfully linked. Please write down your revocation code: " + account.RevocationCode);
             }
-            this.Close();
+            Close();
         }
 
         private void LoginForm_Load(object sender, EventArgs e)

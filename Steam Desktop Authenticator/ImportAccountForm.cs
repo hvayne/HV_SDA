@@ -27,8 +27,8 @@ namespace Steam_Desktop_Authenticator
         private void btnImport_Click(object sender, EventArgs e)
         {
             // check if data already added is encripted
-            #region check if data already added is encripted
-            string ContiuneImport = "0";
+            #region check if data already added is encrypted
+            string ContinueImport = "0";
 
             string ManifestFile = "maFiles/manifest.json";
             if (File.Exists(ManifestFile))
@@ -43,7 +43,7 @@ namespace Steam_Desktop_Authenticator
                 }
                 else if (AppManifestData_encrypted == false)
                 {
-                    ContiuneImport = "1";
+                    ContinueImport = "1";
                 }
                 else
                 {
@@ -59,7 +59,7 @@ namespace Steam_Desktop_Authenticator
 
             // Continue
             #region Continue
-            if (ContiuneImport == "1")
+            if (ContinueImport == "1")
             {
                 this.Close();
 
@@ -67,7 +67,7 @@ namespace Steam_Desktop_Authenticator
                 string ImportUsingEncriptionKey = txtBox.Text;
 
                 // Open file browser > to select the file
-                OpenFileDialog openFileDialog1 = new OpenFileDialog();
+                OpenFileDialog openFileDialog1 = new();
 
                 // Set filter options and filter index.
                 openFileDialog1.Filter = "maFiles (.maFile)|*.maFile|All Files (*.*)|*.*";
@@ -84,7 +84,7 @@ namespace Steam_Desktop_Authenticator
                     System.IO.Stream fileStream = openFileDialog1.OpenFile();
                     string fileContents = null;
 
-                    using (System.IO.StreamReader reader = new System.IO.StreamReader(fileStream))
+                    using (StreamReader reader = new(fileStream))
                     {
                         fileContents = reader.ReadToEnd();
                     }
@@ -111,17 +111,15 @@ namespace Steam_Desktop_Authenticator
                         }
                         else
                         {
-                            // Import Encripted maFile
+                            // Import Encrypted maFile
                             //-------------------------------------------
-                            #region Import Encripted maFile
-                            //Read manifest.json encryption_iv encryption_salt
+                            #region Import Encrypted maFile
+                            //Read manifest.json
                             string ImportFileName_Found = "0";
-                            string Salt_Found = null;
-                            string IV_Found = null;
                             string ReadManifestEx = "0";
 
                             //No directory means no manifest file anyways.
-                            ImportManifest newImportManifest = new ImportManifest();
+                            ImportManifest newImportManifest = new();
                             newImportManifest.Encrypted = false;
                             newImportManifest.Entries = new List<ImportManifestEntry>();
 
@@ -144,21 +142,16 @@ namespace Steam_Desktop_Authenticator
                                 try
                                 {
                                     ImportManifest account = JsonConvert.DeserializeObject<ImportManifest>(ImportManifestContents);
-                                    //bool Import_encrypted = account.Encrypted;
 
-                                    List<ImportManifest> newEntries = new List<ImportManifest>();
+                                    List<ImportManifest> newEntries = new();
 
                                     foreach (var entry in account.Entries)
                                     {
                                         string FileName = entry.Filename;
-                                        string encryption_iv = entry.IV;
-                                        string encryption_salt = entry.Salt;
 
                                         if (ImportFileName == FileName)
                                         {
                                             ImportFileName_Found = "1";
-                                            IV_Found = entry.IV;
-                                            Salt_Found = entry.Salt;
                                         }
                                     }
                                 }
@@ -174,9 +167,9 @@ namespace Steam_Desktop_Authenticator
                                 #region DECRIPT & Import
                                 if (ReadManifestEx == "0")
                                 {
-                                    if (ImportFileName_Found == "1" && Salt_Found != null && IV_Found != null)
+                                    if (ImportFileName_Found == "1")
                                     {
-                                        string decryptedText = FileEncryptor.DecryptData(ImportUsingEncriptionKey, Salt_Found, IV_Found, fileContents);
+                                        string decryptedText = FileEncryptor.DecryptData(ImportUsingEncriptionKey, fileContents);
 
                                         if (decryptedText == null)
                                         {
@@ -191,7 +184,6 @@ namespace Steam_Desktop_Authenticator
                                             {
                                                 mManifest.SaveAccount(maFile, false);
                                                 MessageBox.Show("Account Imported!\nYour Account in now Decrypted!");
-                                                //MainForm.loadAccountsList();
                                             }
                                             else
                                             {
@@ -205,20 +197,9 @@ namespace Steam_Desktop_Authenticator
                                         {
                                             MessageBox.Show("Account not found inside manifest.json.\nImport Failed.");
                                         }
-                                        else if (Salt_Found == null && IV_Found == null)
-                                        {
-                                            MessageBox.Show("manifest.json does not contain encrypted data.\nYour account may be unencrypted!\nImport Failed.");
-                                        }
                                         else
                                         {
-                                            if (IV_Found == null)
-                                            {
-                                                MessageBox.Show("manifest.json does not contain: encryption_iv\nImport Failed.");
-                                            }
-                                            else if (IV_Found == null)
-                                            {
-                                                MessageBox.Show("manifest.json does not contain: encryption_salt\nImport Failed.");
-                                            }
+                                            MessageBox.Show("Check the source code! hvayne removed salt and iv, now sda is broken! \nImport Failed.");
                                         }
                                     }
                                 }
@@ -272,12 +253,6 @@ namespace Steam_Desktop_Authenticator
 
     public class ImportManifestEntry
     {
-        [JsonProperty("encryption_iv")]
-        public string IV { get; set; }
-
-        [JsonProperty("encryption_salt")]
-        public string Salt { get; set; }
-
         [JsonProperty("filename")]
         public string Filename { get; set; }
 

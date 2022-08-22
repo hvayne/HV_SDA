@@ -225,18 +225,18 @@ namespace Steam_Desktop_Authenticator
             if (passKey == null && this.Encrypted) return new SteamGuardAccount[0];
             string maDir = Manifest.GetExecutableDir() + "/maFiles/";
 
-            List<SteamAuth.SteamGuardAccount> accounts = new List<SteamAuth.SteamGuardAccount>();
+            List<SteamGuardAccount> accounts = new();
             foreach (var entry in this.Entries)
             {
                 string fileText = File.ReadAllText(maDir + entry.Filename);
                 if (this.Encrypted)
                 {
-                    string decryptedText = FileEncryptor.DecryptData(passKey, entry.Salt, entry.IV, fileText);
+                    string decryptedText = FileEncryptor.DecryptData(passKey, fileText);
                     if (decryptedText == null) return new SteamGuardAccount[0];
                     fileText = decryptedText;
                 }
 
-                var account = JsonConvert.DeserializeObject<SteamAuth.SteamGuardAccount>(fileText);
+                var account = JsonConvert.DeserializeObject<SteamGuardAccount>(fileText);
                 if (account == null) continue;
                 accounts.Add(account);
 
@@ -258,7 +258,7 @@ namespace Steam_Desktop_Authenticator
             }
             bool toEncrypt = newKey != null;
 
-            string maDir = Manifest.GetExecutableDir() + "/maFiles/";
+            string maDir = GetExecutableDir() + "/maFiles/";
             for (int i = 0; i < this.Entries.Count; i++)
             {
                 ManifestEntry entry = this.Entries[i];
@@ -268,23 +268,17 @@ namespace Steam_Desktop_Authenticator
                 string fileContents = File.ReadAllText(filename);
                 if (this.Encrypted)
                 {
-                    fileContents = FileEncryptor.DecryptData(oldKey, entry.Salt, entry.IV, fileContents);
+                    fileContents = FileEncryptor.DecryptData(oldKey, fileContents);
                 }
 
-                string newSalt = null;
-                string newIV = null;
                 string toWriteFileContents = fileContents;
 
                 if (toEncrypt)
                 {
-                    newSalt = FileEncryptor.GetRandomSalt();
-                    newIV = FileEncryptor.GetInitializationVector();
-                    toWriteFileContents = FileEncryptor.EncryptData(newKey, newSalt, newIV, fileContents);
+                    toWriteFileContents = FileEncryptor.EncryptData(newKey, fileContents);
                 }
 
                 File.WriteAllText(filename, toWriteFileContents);
-                entry.IV = newIV;
-                entry.Salt = newSalt;
             }
 
             this.Encrypted = toEncrypt;
@@ -336,15 +330,11 @@ namespace Steam_Desktop_Authenticator
             if (encrypt && String.IsNullOrEmpty(passKey)) return false;
             if (!encrypt && this.Encrypted) return false;
 
-            string salt = null;
-            string iV = null;
             string jsonAccount = JsonConvert.SerializeObject(account);
 
             if (encrypt)
             {
-                salt = FileEncryptor.GetRandomSalt();
-                iV = FileEncryptor.GetInitializationVector();
-                string encrypted = FileEncryptor.EncryptData(passKey, salt, iV, jsonAccount);
+                string encrypted = FileEncryptor.EncryptData(passKey, jsonAccount);
                 if (encrypted == null) return false;
                 jsonAccount = encrypted;
             }
@@ -355,8 +345,6 @@ namespace Steam_Desktop_Authenticator
             ManifestEntry newEntry = new ManifestEntry()
             {
                 SteamID = account.Session.SteamID,
-                IV = iV,
-                Salt = salt,
                 Filename = filename
             };
 
@@ -457,12 +445,6 @@ namespace Steam_Desktop_Authenticator
 
         public class ManifestEntry
         {
-            [JsonProperty("encryption_iv")]
-            public string IV { get; set; }
-
-            [JsonProperty("encryption_salt")]
-            public string Salt { get; set; }
-
             [JsonProperty("filename")]
             public string Filename { get; set; }
 

@@ -29,6 +29,8 @@ namespace SteamAuth
 
         [JsonProperty("account_name")]
         public string AccountName { get; set; }
+        [JsonProperty("password")]
+        public string Password { get; set; }
 
         [JsonProperty("token_gid")]
         public string TokenGID { get; set; }

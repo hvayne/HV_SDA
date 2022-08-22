@@ -17,13 +17,20 @@ namespace Steam_Desktop_Authenticator
 
             try
             {
-                if (this.LoginReason != LoginType.Initial)
+                if (LoginReason != LoginType.Initial)
                 {
                     txtUsername.Text = account.AccountName;
                     txtUsername.Enabled = false;
+
+                    // if there is a password saved, we can try to log in using it
+                    // at the same time we can freely input any password
+                    if (!string.IsNullOrEmpty(account.Password))
+                    {
+                        txtPassword.Text = account.Password;
+                    }
                 }
 
-                if (this.LoginReason == LoginType.Refresh)
+                if (LoginReason == LoginType.Refresh)
                 {
                     labelLoginExplanation.Text = "Your Steam credentials have expired. For trade and market confirmations to work properly, please login again.";
                 }
@@ -71,7 +78,7 @@ namespace Steam_Desktop_Authenticator
                 switch (response)
                 {
                     case LoginResult.NeedEmail:
-                        InputForm emailForm = new InputForm("Enter the code sent to your email:");
+                        InputForm emailForm = new("Enter the code sent to your email:");
                         emailForm.ShowDialog();
                         if (emailForm.Canceled)
                         {
@@ -314,6 +321,7 @@ namespace Steam_Desktop_Authenticator
             }
 
             account.Session = mUserLogin.Session;
+            account.Password = password;
 
             HandleManifest(man, true);
         }

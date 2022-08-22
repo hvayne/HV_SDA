@@ -8,7 +8,7 @@ namespace Steam_Desktop_Authenticator
     /// <summary>
     /// This class provides the controls that will encrypt and decrypt the *.maFile files
     /// 
-    /// Passwords entered will be passed into PBKDF2 (RFC2898) with a salt derived as UTF8 bytes from password.
+    /// Passwords entered will be passed into PBKDF2 (RFC2898) with a salt derived from SHA256 hashing the password.
     /// The generated key will then be passed into AES which will encrypt the data
     /// in cypher block chaining (CBC) mode, and then write encrypted data onto the disk.
     /// </summary>
@@ -21,13 +21,19 @@ namespace Steam_Desktop_Authenticator
 
         private static byte[] GetEncryptionKey(string password)
         {
-            using Rfc2898DeriveBytes pbkdf2 = new(password, Encoding.UTF8.GetBytes(password), PBKDF2_ITERATIONS_KEY, HashAlgorithmName.SHA512);
+            using Rfc2898DeriveBytes pbkdf2 = new(password, DeriveSalt(password), PBKDF2_ITERATIONS_KEY, HashAlgorithmName.SHA512);
             return pbkdf2.GetBytes(KEY_SIZE_BYTES);
         }
         private static byte[] GetInitializationVector(string password)
         {
-            using Rfc2898DeriveBytes pbkdf2 = new(password, Encoding.UTF8.GetBytes(password), PBKDF2_ITERATIONS_IV, HashAlgorithmName.SHA512);
+            using Rfc2898DeriveBytes pbkdf2 = new(password, DeriveSalt(password), PBKDF2_ITERATIONS_IV, HashAlgorithmName.SHA512);
             return pbkdf2.GetBytes(IV_SIZE_BYTES);
+        }
+        private static byte[] DeriveSalt(string password)
+        {
+            using SHA256 hasher = SHA256.Create();
+            byte[] salt = hasher.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return salt;
         }
         public static string DecryptData(string password, string encryptedData)
         {

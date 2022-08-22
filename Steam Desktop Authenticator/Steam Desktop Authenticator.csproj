@@ -239,12 +239,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\SteamAuth\SteamAuth\SteamAuth.csproj">
-      <Project>{5ad0934e-f6c4-4ae5-83af-c788313b2a87}</Project>
-      <Name>SteamAuth</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.5.2 %28x86 и x64%29</ProductName>
@@ -258,6 +252,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lib\SteamAuth\SteamAuth\SteamAuth.csproj">
+      <Project>{5ad0934e-f6c4-4ae5-83af-c788313b2a87}</Project>
+      <Name>SteamAuth</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

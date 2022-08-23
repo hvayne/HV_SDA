@@ -338,7 +338,7 @@ namespace Steam_Desktop_Authenticator
             }
 
             string maDir = GetExecutableDir() + "/maFiles/";
-            string filename = account.Session.SteamID.ToString() + ".maFile";
+            string filename = account.AccountName + ".maFile";
 
             ManifestEntry newEntry = new()
             {
